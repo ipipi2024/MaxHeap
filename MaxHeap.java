@@ -1,121 +1,155 @@
 import java.util.ArrayList;
 
 public class MaxHeap {
-    ArrayList<Integer> maxHeap = new ArrayList<>();
-    int heapSize = maxHeap.size();
-
-    // method to add elements to heap
-    public void add(int num) {
-        // check if its empty
-        if (heapSize == 0) {
-            maxHeap.add(num);
-            heapSize++;
-            return;
-        }
-        // add element
-        maxHeap.add(num); 
-        heapSize++;
-        swapUp(heapSize -1);
+    private ArrayList<Integer> heap;
+    
+    public MaxHeap() {
+        heap = new ArrayList<>();
     }
-
-    //method to swap added element with parent so its in order
-    public void swapUp(int index) {
+    
+    /**
+     * Returns the current size of the heap
+     */
+    public int size() {
+        return heap.size();
+    }
+    
+    /**
+     * Checks if the heap is empty
+     */
+    public boolean isEmpty() {
+        return heap.isEmpty();
+    }
+    
+    /**
+     * Returns the maximum element without removing it
+     */
+    public Integer peek() {
+        if (isEmpty()) {
+            return null;
+        }
+        return heap.get(0);
+    }
+    
+    /**
+     * Adds a new element to the heap
+     */
+    public void add(int value) {
+        // Add the element to the end of the heap
+        heap.add(value);
         
+        // Fix the max heap property by swapping up
+        swapUp(heap.size() - 1);
+    }
+    
+    /**
+     * Helper method to maintain heap property after adding an element
+     */
+    private void swapUp(int index) {
+        // Base case: reached the root or parent is already larger
         if (index == 0) {
             return;
         }
-
-        Integer childElement = maxHeap.get(index);
-
-        // get parentIndex of the element added
+        
         int parentIndex = (index - 1) / 2;
-
-        // get parentElement
-        Integer parentElement = maxHeap.get(parentIndex);
-
-        // base case
-        if (parentElement >= childElement) {
-            return;
-        }
-
-        // compare with parent if needed to swap
-
-        Integer temp = parentElement;
-        maxHeap.set(parentIndex, childElement);
-        maxHeap.set(index, temp);
-        swapUp(parentIndex);
-    }
-
-    public void printMaxHeap () {
-        for (int num: maxHeap) {
-            System.out.print(num + " ");
+        
+        // If parent is smaller than current element, swap them
+        if (heap.get(parentIndex) < heap.get(index)) {
+            swap(parentIndex, index);
+            // Recursively check the parent
+            swapUp(parentIndex);
         }
     }
-
-    //method to remove element from root
+    
+    /**
+     * Removes and returns the maximum element from the heap
+     */
     public Integer remove() {
-        if(heapSize == 0) {
-            System.out.print("Heap is empty, cannot remove!");
-            return -1;
+        if (isEmpty()) {
+            System.out.println("Heap is empty, cannot remove!");
+            return null;
         }
         
-        Integer top = maxHeap.get(0);
-        Integer last = maxHeap.remove(heapSize -1);
-        if (heapSize == 1) {
-            heapSize--;
-            return top;
+        // Store the max element to return later
+        Integer max = heap.get(0);
+        
+        // If there's only one element, just remove it
+        if (heap.size() == 1) {
+            heap.remove(0);
+            return max;
         }
-        heapSize--;
-        maxHeap.set(0, last);
-       
+        
+        // Replace the root with the last element
+        heap.set(0, heap.remove(heap.size() - 1));
+        
+        // Fix the max heap property by swapping down
         swapDown(0);
-        return top;
-
+        
+        return max;
     }
-
-    //helper method to swap down  
-    public void swapDown(int index) {
-       
-        Integer parent = maxHeap.get(index);
-
-        
+    
+    /**
+     * Helper method to maintain heap property after removing the root
+     */
+    private void swapDown(int index) {
+        int largest = index;
         int leftChildIndex = 2 * index + 1;
+        int rightChildIndex = 2 * index + 2;
+        int heapSize = heap.size();
         
-        if (leftChildIndex >= heapSize) {
+        // Check if left child exists and is larger than current largest
+        if (leftChildIndex < heapSize && heap.get(leftChildIndex) > heap.get(largest)) {
+            largest = leftChildIndex;
+        }
+        
+        // Check if right child exists and is larger than current largest
+        if (rightChildIndex < heapSize && heap.get(rightChildIndex) > heap.get(largest)) {
+            largest = rightChildIndex;
+        }
+        
+        // If largest is not the current index, swap and continue down
+        if (largest != index) {
+            swap(index, largest);
+            swapDown(largest);
+        }
+    }
+    
+    /**
+     * Helper method to swap two elements in the heap
+     */
+    private void swap(int i, int j) {
+        Integer temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
+    }
+    
+    /**
+     * Prints all elements in the heap
+     */
+    public void printHeap() {
+        if (isEmpty()) {
+            System.out.println("Heap is empty");
             return;
         }
-        int rightChildIndex = 2 * index + 2;
-        Integer leftChild = maxHeap.get(leftChildIndex);
         
-
-        if (rightChildIndex >= heapSize) {
-            if (leftChild > parent) {
-                Integer temp = parent;
-                maxHeap.set(index, leftChild);
-                maxHeap.set(leftChildIndex, temp);
-                swapDown(leftChildIndex);
-                return;
-            }
+        for (int i = 0; i < heap.size(); i++) {
+            System.out.print(heap.get(i) + " ");
         }
-
-        Integer rightChild = maxHeap.get(rightChildIndex);
-        
-        
-        if (leftChild >= rightChild) {
-            if (leftChild > parent) {
-                Integer temp = parent;
-                maxHeap.set(index, leftChild);
-                maxHeap.set(leftChildIndex, temp);
-                swapDown(leftChildIndex);
-            }
-        }else{
-            if(rightChild > parent) {
-                Integer temp = parent;
-                maxHeap.set(index, rightChild);
-                maxHeap.set(rightChildIndex, temp);
-                swapDown(rightChildIndex);
-            }
+        System.out.println();
+    }
+    
+    /**
+     * Creates a heap from an array of integers
+     */
+    public void buildHeap(int[] array) {
+        // First add all elements
+        for (int value : array) {
+            heap.add(value);
         }
-
+        
+        // Heapify from the last non-leaf node up to the root
+        for (int i = heap.size() / 2 - 1; i >= 0; i--) {
+            swapDown(i);
+        }
     }
 }

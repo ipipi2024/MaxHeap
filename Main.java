@@ -8,7 +8,6 @@ public class Main {
         maxHeap.remove();
         maxHeap.remove();
         maxHeap.remove();
-        
-        maxHeap.printMaxHeap();
+        maxHeap.printHeap();
     }
 }
